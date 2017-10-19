@@ -1,0 +1,115 @@
+body {
+    font-family: Arial, "Times New Roman";
+    margin:0;
+    padding:0;
+}
+
+fieldset {
+    border:none;
+}
+
+button, option, button, fieldset {
+    -khtml-user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+}
+
+#content {
+    width:100%;
+    height: 85%;
+    border-bottom:2px solid #ccc;
+    padding: 10px 20px;
+    overflow-y: scroll;
+}
+
+#classification {
+    padding: 10px 20px;
+}
+
+
+button {
+    color: white;
+    border-radius: 4px;
+    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+    font-size: 100%;
+    padding: .2em .5em;
+    margin: 0.2em 0 0 0;
+    text-decoration: none;
+    border: transparent;
+    display: inline-block;
+    zoom: 1;
+    white-space: nowrap;
+    vertical-align: middle;
+    text-align: center;
+    cursor: pointer;
+    -webkit-user-drag: none;
+    user-select: none;
+    line-height: normal;
+    box-sizing: border-box;
+    font-weight: 100;
+    letter-spacing: 0.01em;
+    -webkit-appearance: button;
+    text-transform: none;
+}
+
+button#save {
+    background: rgb(28, 184, 65);
+}
+
+button#cancel {
+    background: rgb(202, 60, 60);;
+}
+
+input[type=radio] {
+    margin-bottom:1em;
+}
+
+label {
+    padding: .2em .5em;
+}
+
+#catBox {
+    padding-top:10px;
+    border:2px solid #333;
+    background-color: #fff;
+    display: none;
+}
+
+.tagBox {
+    width:15px;
+    height: 15px;
+}
+
+p[class^="cat"] {
+    cursor: pointer;
+    display: inline;
+}
+
+.label_cat0, .cat0, .cat0 * {
+    background-color: #ffe259;
+}
+
+.label_cat1, .cat1, .cat1 * {
+    background-color: #ffa751;
+}
+
+.label_cat2, .cat2, .cat2 * {
+    background-color: #11998e;
+}
+
+.label_cat3, .cat3, .cat3 * {
+    background-color: #0082c8;
+}
+
+.label_cat4, .cat4, .cat4 * {
+    background-color: #FC466B;
+}
+
+.label_cat5, .cat5, .cat5 * {
+    background-color: #ADA996;
+}
+
+.label_cat6, .cat6, .cat6 * {
+    background-color: #3CA55C;
+}
