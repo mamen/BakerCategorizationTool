@@ -59,7 +59,7 @@ $(function(){
 
         // console.log(JSON.stringify(selections));
 
-        var csvOutput = "";
+        var csvOutput = "data:text/csv;charset=utf-8,";
 
         for(var i = 0; i < selections.length; i++) {
             // console.log(JSON.stringify(selections[i]));
@@ -72,7 +72,13 @@ $(function(){
         }
 
 
-        console.log(csvOutput);
+        var encodedUri = encodeURI(csvOutput);
+        var link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", "result.csv");
+        document.body.appendChild(link); // Required for FF
+
+        link.click(); // This will download the data file named "my_data.csv".
 
 
 
