@@ -32,7 +32,9 @@
 
                             var postID = parseInt(elementArray[0].replace("\"",""));
                             var postTitle = elementArray[1];
-                            var postBody = elementArray[2].substring(0, elementArray[2].length -1).replace(/&#xA;/g, "\n");
+                            var postBody = elementArray[2].substring(0, elementArray[2].length -1).replace(/(<p[^>]+?>|<p>|<\/p>)/g,"").replace(/&#xA;/g, "\n");
+
+                            // console.log(postBody);
 
                             var post = {id: postID, title: postTitle, body: postBody};
                             posts.push(post);
@@ -362,6 +364,21 @@
             localStorage.clear();
             location.reload();
         }
+    }
+
+    document.onkeydown = function checkKey(e) {
+
+        e = e || window.event;
+
+        if (e.keyCode == '37') {
+            // left arrow
+            document.getElementById('prev').click();
+        }
+        else if (e.keyCode == '39') {
+            // right arrow
+            document.getElementById('next').click();
+        }
+
     }
 
     document.addEventListener('keyup', resetProgress, false);
