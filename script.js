@@ -48,6 +48,39 @@
         callback();
     }
 
+    function showCategorizationBox(clientX, clientY) {
+        catBox.style.display = "block";
+        catBox.style.position = "absolute";
+        catBox.style.width = 250;
+        catBox.style.height = 250;
+
+        var x = 10 + clientX;
+        var y = 10 + clientY;
+
+        if(x > 10) {
+            if(x + 250 > window.innerWidth) {
+                x = window.innerWidth - 260;
+            }else {
+                x = 10 + clientX;
+            }
+        } else {
+            x = 10;
+        }
+
+        if(y > 10) {
+            if(y + 250 > window.innerHeight) {
+                y = window.innerHeight - 260;
+            } else {
+                y = 10 + clientY;
+            }
+        } else {
+            y = 10;
+        }
+
+        catBox.style.left = x + 'px';
+        catBox.style.top = y + 'px';
+    }
+
     function hideCategorizationBox() {
         // hide the box again
         catBox.style.display = "none";
@@ -90,7 +123,7 @@
     function wrapSelectedText(className) {
         var selection = window.getSelection().getRangeAt(0);
         var selectedText = selection.extractContents();
-        var span= document.createElement("p");
+        var span = document.createElement("font");
         span.className = className;
         span.id = numSelections;
         span.appendChild(selectedText);
@@ -98,6 +131,8 @@
 
 
         span.onclick = function() { deleteCategorizationHandler(span) };
+
+        console.log(document.getElementById("content").innerHTML);
     }
 
     function deleteCategorizationHandler(element) {
@@ -111,6 +146,8 @@
 
             // remove the empty element
             parent.removeChild(element);
+
+            console.log(document.getElementById("content").innerHTML);
 
         }
     }
@@ -225,7 +262,12 @@
     // save the selection to the selections-array
     document.getElementById('categorySelect').addEventListener('click', function(evt) {
 
+        // console.log("test");
+
         if(document.getElementById("categorySelect").querySelector("input:checked") !== null) {
+
+            // console.log("something was selected");
+
             // get the selected category (0, 1, 2, 3, 4, ...)
             var selection = document.getElementById("categorySelect").querySelector("input:checked").value;
 
@@ -250,33 +292,36 @@
     // check for new selection
     document.addEventListener("mouseup", function(event) {
 
-        console.log("mouseUp");
+        var target = event.target || event.srcElement;
 
-        var selection = getSelectedText().trim();
+        // console.log(target.id);
+
+        if(target.id !== "catBox") {
+            var selection = getSelectedText().trim();
 
 
-        if(null === window.getSelection().anchorNode) {
-            console.log("anchorNode was null");
-            return;
-        }
+            if(null === window.getSelection().anchorNode) {
+                console.log("anchorNode was null");
+                return;
+            }
 
-        // var node = window.getSelection().anchorNode.parentNode;
-        //
-        // var selectionIsInContent = false;
-        //
-        // while(node.localName !== "body") {
-        //
-        //     if(node.id) {
-        //         if(node.id == "content") {
-        //             selectionIsInContent = true;
-        //             break;
-        //         }
-        //     }
-        //
-        //     node = node.parentNode;
-        // }
-        //
-        // if(selectionIsInContent) {
+            // var node = window.getSelection().anchorNode.parentNode;
+            //
+            // var selectionIsInContent = false;
+            //
+            // while(node.localName !== "body") {
+            //
+            //     if(node.id) {
+            //         if(node.id == "content") {
+            //             selectionIsInContent = true;
+            //             break;
+            //         }
+            //     }
+            //
+            //     node = node.parentNode;
+            // }
+            //
+            // if(selectionIsInContent) {
 
             // console.log("selection was in body");
 
@@ -289,27 +334,27 @@
                 //     startIdx + selection.length !== endIdx) {
 
 
-                    console.log("selection was a new one");
+                // console.log("selection was a new one");
 
-                    startIdx = document.getElementById("content").textContent.indexOf(selection);
-                    endIdx = startIdx + selection.length;
+                startIdx = document.getElementById("content").textContent.indexOf(selection);
+                endIdx = startIdx + selection.length;
 
-                    catBox.style.display = "block";
-                    catBox.style.position = "absolute";
-                    catBox.style.left = 10+event.clientX+'px';
-                    catBox.style.top = 10+event.clientY+'px';
+                showCategorizationBox(event.clientX, event.clientY);
 
-                    // disable the click event, so that the selection can't get lost
-                    document.getElementById("content").onmousedown = function(e){
-                        e = e || window.event;
-                        e.preventDefault();
-                    }
-
+                // disable the click event, so that the selection can't get lost
+                document.getElementById("content").onmousedown = function(e){
+                    e = e || window.event;
+                    e.preventDefault();
                 }
+
+            }
             // }
-        // } else {
-        //     console.log("selection was NOT in body");
-        // }
+            // } else {
+            //     console.log("selection was NOT in body");
+            // }
+        }
+
+
 
     }, false);
 
@@ -325,12 +370,13 @@
 
             if(typeof localStorage.pageBuffer !== "undefined") {
                 console.log("loaded pages from local storage");
-                console.log(JSON.parse(localStorage.pageBuffer).length);
+                // console.log(JSON.parse(localStorage.pageBuffer).length);
 
                 for(var i = 0; i < JSON.parse(localStorage.pageBuffer).length; i++) {
                     pageBuffer[i] = JSON.parse(localStorage.pageBuffer)[i];
                 }
                 html = pageBuffer[0];
+
             } else {
                 html = "<h2>" + posts[currentPost].title + "</h2>" + posts[currentPost].body;
             }
@@ -356,6 +402,14 @@
         }
 
         document.getElementById("content").innerHTML = html;
+
+        // set new onclick-listeners for the categorizations
+        var c = document.querySelectorAll('font[class^="cat"]');
+
+        for(var i = 0; i < c.length; i++) {
+            c[i].onclick = function() { deleteCategorizationHandler(this) };
+        }
+
 
     });
 
@@ -384,3 +438,7 @@
             location.reload();
         }
     }
+
+    // $('body').on("click mousedown mouseup keydown change mouseup click dblclick keydown keyup keypress textInput resize scroll zoom focus blur select change submit reset",function(e){
+    //     console.log(e);
+    // });

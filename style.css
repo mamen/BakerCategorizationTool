@@ -91,25 +91,18 @@ label {
 }
 
 #catBox {
-    padding-top:10px;
     border:2px solid #333;
     background-color: #fff;
     display: none;
+    z-index:1;
 }
 
-.tagBox {
-    width:15px;
-    height: 15px;
+#catBox fieldset {
+    padding:10px 20px;
 }
 
-p {
-    margin-top:0px;
-    display: inline;
-}
-
-p[class^="cat"] {
+font[class^="cat"] {
     cursor: pointer;
-    display: inline;
 }
 
 .label_cat0, .cat0, .cat0 * {
