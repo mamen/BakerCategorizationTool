@@ -3,13 +3,16 @@
     <link rel="stylesheet" href="style.css"/>
 </head>
 <body>
+<div id="currentProgress">Post #<span id="currentPostNum">0</span>/<span id="totalPostNum">100</span></div>
 <div id="content"></div>
 <div id="classification">
-    <button type="button" id="prev">Previous</button>&nbsp;<button type="button" id="next">Next</button><br />
-    <button type="button" id="saveData">Save Categorization</button>
+    <div id="buttonsLeft"><button type="button" id="prev">Previous</button>&nbsp;<button type="button" id="next">Next</button></div>
+
+    <div id="buttonsRight"><button type="button" id="downloadData">Save Categorization</button></div>
+
 </div>
 <div id="catBox">
-    <fieldset>
+    <fieldset id="categorySelect">
         <input type="radio" id="0" name="category" value="0">
         <label for="0" class="label_cat0"> How-To</label><br>
 
@@ -30,12 +33,9 @@
 
         <input type="radio" id="6" name="category" value="6">
         <label for="6" class="label_cat6"> Learningsupport</label><br />
-        <button type="button" id="cancel">Cancel</button>&nbsp;<button type="button" id="save">Save</button>
+        <button type="button" id="cancel">Cancel</button>
     </fieldset>
 </div>
-<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.min.js"></script>
-
-
 <script src="script.js"></script>
 </body>
 </html>

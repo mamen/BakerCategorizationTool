@@ -25,6 +25,21 @@ button, option, button, fieldset {
 
 #classification {
     padding: 10px 20px;
+    min-height:100px !important;
+    height:200px;
+}
+
+#currentProgress {
+    float: right;
+    margin: 5px 5px 0 0;
+}
+
+#buttonsLeft {
+    float: left;
+}
+
+#buttonsRight {
+    float: right;
 }
 
 
@@ -79,6 +94,11 @@ label {
 .tagBox {
     width:15px;
     height: 15px;
+}
+
+p {
+    margin-top:0px;
+    display: inline-block;
 }
 
 p[class^="cat"] {

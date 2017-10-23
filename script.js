@@ -1,4 +1,3 @@
-$(function(){
 
     var startIdx;       // the start-index of the selected text
     var endIdx;         // the end-index of the selected text
@@ -15,46 +14,39 @@ $(function(){
     var posts = [];
     var pageBuffer = [];
 
-    loadFromCSV("filtered_posts.csv", "\";\"", function(result) {
-        //console.log(JSON.stringify(posts));
-
-        var html = "<h2>" + posts[currentPost].title + "</h2>" + posts[currentPost].body;
-
-        // console.log(posts[currentPost].body);
-
-        document.getElementById("content").innerHTML = html;
-        currentPostId = posts[currentPost].id;
-
-    });
-
-
+    // loads the posts from a given .csv-file
     function loadFromCSV(fileName, separator, callback) {
-        $.get(fileName, function(fileContent){
 
-            var result = [];
-            var line = fileContent.split(/(\r\n|\n|\r)/gm);
+        var rawFile = new XMLHttpRequest();
+        rawFile.open("GET", fileName, false);
 
-            // start from 1, because we ignore the csv-header
-            for (var i = 1; i < line.length; i++) {
-                if (line[i].length > 1 && line[i] !== "\r\n") {
-                    var elementArray = line[i].split(separator);
+        rawFile.onreadystatechange = function () {
+            if(rawFile.readyState === 4) {
+                if(rawFile.status === 200 || rawFile.status == 0) {
+                    var line = rawFile.responseText.split(/(\r\n|\n|\r)/gm);
 
-                    var postID = parseInt(elementArray[0].replace("\"",""));
-                    var postTitle = elementArray[1];
-                    var postBody = elementArray[2].substring(0, elementArray[2].length -1).replace(/&#xA;/g, "\n");
+                    // start from 1, because we ignore the csv-header
+                    for (var i = 1; i < line.length; i++) {
+                        if (line[i].length > 1 && line[i] !== "\r\n") {
+                            var elementArray = line[i].split(separator);
 
-                    var post = {id: postID, title: postTitle, body: postBody};
-                    posts.push(post);
+                            var postID = parseInt(elementArray[0].replace("\"",""));
+                            var postTitle = elementArray[1];
+                            var postBody = elementArray[2].substring(0, elementArray[2].length -1).replace(/&#xA;/g, "\n").replace(/\;/g, "");
 
-
+                            var post = {id: postID, title: postTitle, body: postBody};
+                            posts.push(post);
+                        }
+                    }
                 }
             }
-            callback(result);
-        });
+        }
+        rawFile.send(null);
+        callback();
     }
 
-    // store the selection
-    document.getElementById('saveData').onclick = function () {
+    // store the selection in an .csv-file and download it
+    document.getElementById('downloadData').onclick = function () {
         //downloadCSV({filename: "test.csv"});
 
         // console.log(JSON.stringify(selections));
@@ -66,7 +58,7 @@ $(function(){
 
             for (var p in selections[i]) {
                 if(selections[i].hasOwnProperty(p) ) {
-                    csvOutput += selections[i][p].id + ";" +  selections[i][p].category + ";" +  selections[i][p].text + "\n";
+                    csvOutput += selections[i][p].id + ";" +  selections[i][p].category + ";" +  selections[i][p].text.replace(/(?:\r\n|\r|\n)/g, " ") + "\n";
                 }
             }
         }
@@ -80,13 +72,12 @@ $(function(){
 
         link.click(); // This will download the data file named "my_data.csv".
 
-
-
     };
 
+    // load previous post
     document.getElementById('prev').onclick = function () {
 
-        pageBuffer[currentPost] = document.getElementById("content").innerHTML;
+        storePageInBuffer();
 
         // load new post
         currentPost--;
@@ -100,7 +91,7 @@ $(function(){
         var html;
 
         if(typeof pageBuffer[currentPost] !== "undefined") {
-            html = pageBuffer[currentPost];
+            html = loadPageFromBuffer();
         } else {
             html = "<h2>" + posts[currentPost].title + "</h2>" + posts[currentPost].body;
         }
@@ -113,12 +104,26 @@ $(function(){
 
         catBox.style.display = "none";
 
+        document.getElementById("currentPostNum").innerHTML = currentPost+1;
+        document.getElementById("totalPostNum").innerHTML = posts.length;
+
     };
 
+    function storePageInBuffer() {
+        console.log("store post " + currentPost);
+        pageBuffer[currentPost] = document.getElementById("content").innerHTML;
+        localStorage.setItem("pageBuffer", JSON.stringify(pageBuffer));
+        localStorage.setItem("selections", JSON.stringify(selections));
+    }
+
+    function loadPageFromBuffer() {
+        return pageBuffer[currentPost];
+    }
+
+    // load next post
     document.getElementById('next').onclick = function () {
 
-
-        pageBuffer[currentPost] = document.getElementById("content").innerHTML;
+        storePageInBuffer();
 
         // load new post
         currentPost++;
@@ -132,11 +137,10 @@ $(function(){
         var html;
 
         if(typeof pageBuffer[currentPost] !== "undefined") {
-            html = pageBuffer[currentPost];
+            html = loadPageFromBuffer();
         } else {
             html = "<h2>" + posts[currentPost].title + "</h2>" + posts[currentPost].body;
         }
-
 
         document.getElementById("content").innerHTML = html;
 
@@ -146,6 +150,8 @@ $(function(){
 
         catBox.style.display = "none";
 
+        document.getElementById("currentPostNum").innerHTML = currentPost+1;
+        document.getElementById("totalPostNum").innerHTML = posts.length;
 
 
     };
@@ -165,32 +171,38 @@ $(function(){
         document.getElementById("content").onmousedown = window.event;
     };
 
-    // store the selection
-    document.getElementById('save').onclick = function () {
+    // save the selection to the selections-array
+    document.getElementById('categorySelect').addEventListener('click', function(evt) {
 
-        // get the selected category (0, 1, 2, 3, 4, ...)
-        var selection = catBox.querySelector("fieldset input[name = 'category']:checked").value;
+        if(document.getElementById("categorySelect").querySelector("input:checked") !== null) {
+            // get the selected category (0, 1, 2, 3, 4, ...)
+            var selection = document.getElementById("categorySelect").querySelector("input:checked").value;
 
-        wrapSelectedText("cat"+selection);
+            wrapSelectedText("cat"+selection);
 
-        resetForm();
+            resetForm();
 
-        selections[numSelections] = [];
-        selections[numSelections].push({ id: currentPostId, category:selection, start: startIdx, end: endIdx, text: selectedText });
-        numSelections++;
+            selectedText.replace(";", "");
 
-        //console.log(JSON.stringify(selections));
+            selections[numSelections] = [];
+            selections[numSelections].push({ id: currentPostId, category:selection, start: startIdx, end: endIdx, text: selectedText });
+            numSelections++;
 
-        // hide the box again
-        catBox.style.display = "none";
+            //console.log(JSON.stringify(selections));
 
-        window.getSelection().empty();
+            // hide the box again
+            catBox.style.display = "none";
 
-        // enable mouse-click again
-        document.getElementById("content").onmousedown = window.event;
+            window.getSelection().empty();
 
-        console.log(document.getElementById("content").innerHTML)
-    };
+            // enable mouse-click again
+            document.getElementById("content").onmousedown = window.event;
+
+            // console.log(document.getElementById("content").innerHTML)
+
+        }
+
+    });
 
     // check for new selection
     document.addEventListener("mouseup", function(event) {
@@ -265,6 +277,7 @@ $(function(){
         return text;
     }
 
+    // wraps the selected text with the chosen category-color
     function wrapSelectedText(className) {
         var selection = window.getSelection().getRangeAt(0);
         var selectedText = selection.extractContents();
@@ -293,4 +306,59 @@ $(function(){
         }
     };
 
-});
+    loadFromCSV("./posts.csv", "\";\"", function() {
+
+        var html = "";
+
+        if (typeof(Storage) !== "undefined") {
+
+            // console.log(localStorage.pageBuffer);
+
+            // localStorage.clear();
+
+            if(typeof localStorage.pageBuffer !== "undefined") {
+                console.log("loaded pages from local storage");
+                console.log(JSON.parse(localStorage.pageBuffer).length);
+
+                for(var i = 0; i < JSON.parse(localStorage.pageBuffer).length; i++) {
+                    pageBuffer[i] = JSON.parse(localStorage.pageBuffer)[i];
+                }
+                html = pageBuffer[0];
+            } else {
+                html = "<h2>" + posts[currentPost].title + "</h2>" + posts[currentPost].body;
+            }
+
+            if(typeof localStorage.selections !== "undefined") {
+                for(var i = 0; i < JSON.parse(localStorage.selections).length; i++) {
+                    selections[i] = JSON.parse(localStorage.selections)[i];
+                }
+            }
+
+
+            currentPostId = posts[currentPost].id;
+
+            // storePageInBuffer();
+
+            document.getElementById("currentPostNum").innerHTML = currentPost+1;
+            document.getElementById("totalPostNum").innerHTML = posts.length;
+
+        } else {
+            // Sorry! No Web Storage support..
+            html = "<p>Your browser does not support web storage!</p>";
+        }
+
+        document.getElementById("content").innerHTML = html;
+
+    });
+
+
+    function resetProgress(e) {
+        // this would test for whichever key is 40 and the ctrl key at the same time
+        if (e.ctrlKey && e.keyCode == 82) {
+            // call your function to do the thing
+            localStorage.clear();
+            location.reload();
+        }
+    }
+
+    document.addEventListener('keyup', resetProgress, false);
