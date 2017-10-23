@@ -32,7 +32,7 @@
 
                             var postID = parseInt(elementArray[0].replace("\"",""));
                             var postTitle = elementArray[1];
-                            var postBody = elementArray[2].substring(0, elementArray[2].length -1).replace(/(<p[^>]+?>|<p>|<\/p>)/g,"").replace(/&#xA;/g, "\n");
+                            var postBody = elementArray[2].substring(0, elementArray[2].length -1).replace(/(<p>|<\/p>)/g,"\r\n<br />").replace(/&#xA;/g, "\n");
 
                             // console.log(postBody);
 
@@ -43,8 +43,76 @@
                 }
             }
         }
+
         rawFile.send(null);
         callback();
+    }
+
+    function hideCategorizationBox() {
+        // hide the box again
+        catBox.style.display = "none";
+        resetForm();
+
+        window.getSelection().empty();
+        // enable mouse-click again
+        document.getElementById("content").onmousedown = window.event;
+    }
+
+    function storePageInBuffer() {
+        console.log("store post " + currentPost);
+        pageBuffer[currentPost] = document.getElementById("content").innerHTML;
+        localStorage.setItem("pageBuffer", JSON.stringify(pageBuffer));
+        localStorage.setItem("selections", JSON.stringify(selections));
+    }
+
+    function loadPageFromBuffer() {
+        return pageBuffer[currentPost];
+    }
+
+    function resetForm() {
+        // reset selection
+        for(var child = catBox.querySelector("fieldset").firstChild; child!==null; child=child.nextSibling) {
+            child.checked = false;
+        }
+    }
+
+    function getSelectedText() {
+        var text = "";
+        if (window.getSelection) {
+            text = window.getSelection().toString();
+        } else if (document.selection && document.selection.type !== "Control") {
+            text = document.selection.createRange().text;
+        }
+        return text;
+    }
+
+    // wraps the selected text with the chosen category-color
+    function wrapSelectedText(className) {
+        var selection = window.getSelection().getRangeAt(0);
+        var selectedText = selection.extractContents();
+        var span= document.createElement("p");
+        span.className = className;
+        span.id = numSelections;
+        span.appendChild(selectedText);
+        selection.insertNode(span);
+
+
+        span.onclick = function() { deleteCategorizationHandler(span) };
+    }
+
+    function deleteCategorizationHandler(element) {
+        if (confirm('Click OK if you really want to delete this categorization.')) {
+            // delete it from the saved categorizations
+            selections[element.id] = null;
+
+            var parent = element.parentNode;
+
+            while (element.firstChild) parent.insertBefore(element.firstChild, element);
+
+            // remove the empty element
+            parent.removeChild(element);
+
+        }
     }
 
     // store the selection in an .csv-file and download it
@@ -112,17 +180,6 @@
 
     };
 
-    function storePageInBuffer() {
-        console.log("store post " + currentPost);
-        pageBuffer[currentPost] = document.getElementById("content").innerHTML;
-        localStorage.setItem("pageBuffer", JSON.stringify(pageBuffer));
-        localStorage.setItem("selections", JSON.stringify(selections));
-    }
-
-    function loadPageFromBuffer() {
-        return pageBuffer[currentPost];
-    }
-
     // load next post
     document.getElementById('next').onclick = function () {
 
@@ -162,17 +219,7 @@
 
     // cancel the selection
     document.getElementById('cancel').onclick = function () {
-
-        resetForm();
-
-        // hide the box again
-        catBox.style.display = "none";
-
-        // clear the selection
-        window.getSelection().empty();
-
-        // enable mouse-click again
-        document.getElementById("content").onmousedown = window.event;
+        hideCategorizationBox();
     };
 
     // save the selection to the selections-array
@@ -184,8 +231,6 @@
 
             wrapSelectedText("cat"+selection);
 
-            resetForm();
-
             // selectedText.replace(";", "");
 
             selections[numSelections] = [];
@@ -194,13 +239,7 @@
 
             //console.log(JSON.stringify(selections));
 
-            // hide the box again
-            catBox.style.display = "none";
-
-            window.getSelection().empty();
-
-            // enable mouse-click again
-            document.getElementById("content").onmousedown = window.event;
+            hideCategorizationBox();
 
             // console.log(document.getElementById("content").innerHTML)
 
@@ -211,38 +250,46 @@
     // check for new selection
     document.addEventListener("mouseup", function(event) {
 
+        console.log("mouseUp");
+
         var selection = getSelectedText().trim();
 
 
-        if(null == window.getSelection().anchorNode) {
+        if(null === window.getSelection().anchorNode) {
+            console.log("anchorNode was null");
             return;
         }
 
-        var node = window.getSelection().anchorNode.parentNode;
+        // var node = window.getSelection().anchorNode.parentNode;
+        //
+        // var selectionIsInContent = false;
+        //
+        // while(node.localName !== "body") {
+        //
+        //     if(node.id) {
+        //         if(node.id == "content") {
+        //             selectionIsInContent = true;
+        //             break;
+        //         }
+        //     }
+        //
+        //     node = node.parentNode;
+        // }
+        //
+        // if(selectionIsInContent) {
 
-        var selectionIsInContent = false;
-
-        while(node.localName !== "body") {
-
-            if(node.id) {
-                if(node.id == "content") {
-                    selectionIsInContent = true;
-                    break;
-                }
-            }
-
-            node = node.parentNode;
-        }
-
-        if(selectionIsInContent) {
+            // console.log("selection was in body");
 
             if(selection.length > 0) {
 
                 selectedText = selection;
 
                 // only, if a new selection was made
-                if(document.getElementById("content").textContent.indexOf(selection) !== startIdx &&
-                    startIdx + selection.length !== endIdx) {
+                // if(document.getElementById("content").textContent.indexOf(selection) !== startIdx &&
+                //     startIdx + selection.length !== endIdx) {
+
+
+                    console.log("selection was a new one");
 
                     startIdx = document.getElementById("content").textContent.indexOf(selection);
                     endIdx = startIdx + selection.length;
@@ -259,56 +306,12 @@
                     }
 
                 }
-            }
-        }
+            // }
+        // } else {
+        //     console.log("selection was NOT in body");
+        // }
 
     }, false);
-
-    function resetForm() {
-        // reset selection
-        for(var child = catBox.querySelector("fieldset").firstChild; child!==null; child=child.nextSibling) {
-            child.checked = false;
-        }
-    }
-
-    function getSelectedText() {
-        var text = "";
-        if (window.getSelection) {
-            text = window.getSelection().toString();
-        } else if (document.selection && document.selection.type !== "Control") {
-            text = document.selection.createRange().text;
-        }
-        return text;
-    }
-
-    // wraps the selected text with the chosen category-color
-    function wrapSelectedText(className) {
-        var selection = window.getSelection().getRangeAt(0);
-        var selectedText = selection.extractContents();
-        var span= document.createElement("p");
-        span.className = className;
-        span.id = numSelections;
-        span.appendChild(selectedText);
-        selection.insertNode(span);
-
-
-        span.onclick = function() { deleteCategorizationHandler(span) };
-    }
-
-    function deleteCategorizationHandler(element) {
-        if (confirm('Click OK if you really want to delete this categorization.')) {
-            // delete it from the saved categorizations
-            selections[element.id] = null;
-
-            var parent = element.parentNode;
-
-            while (element.firstChild) parent.insertBefore(element.firstChild, element);
-
-            // remove the empty element
-            parent.removeChild(element);
-
-        }
-    };
 
     loadFromCSV("./posts.csv", "\";\"", function() {
 
@@ -356,16 +359,6 @@
 
     });
 
-
-    function resetProgress(e) {
-        // this would test for whichever key is 40 and the ctrl key at the same time
-        if (e.ctrlKey && e.keyCode == 82) {
-            // call your function to do the thing
-            localStorage.clear();
-            location.reload();
-        }
-    }
-
     document.onkeydown = function checkKey(e) {
 
         e = e || window.event;
@@ -377,8 +370,17 @@
         else if (e.keyCode == '39') {
             // right arrow
             document.getElementById('next').click();
+        } if(e.keyCode == '27') {
+            hideCategorizationBox();
         }
 
     }
 
-    document.addEventListener('keyup', resetProgress, false);
+    document.onkeyup = function resetProgress(e) {
+        // this would test for whichever key is 40 and the ctrl key at the same time
+        if (e.ctrlKey && e.keyCode == 82) {
+            // call your function to do the thing
+            localStorage.clear();
+            location.reload();
+        }
+    }
