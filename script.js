@@ -260,7 +260,7 @@
     };
 
     // save the selection to the selections-array
-    document.getElementById('categorySelect').addEventListener('click', function(evt) {
+    document.getElementById('categorySelect').addEventListener('change', function(evt) {
 
         // console.log("test");
 
