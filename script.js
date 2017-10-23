@@ -32,7 +32,7 @@
 
                             var postID = parseInt(elementArray[0].replace("\"",""));
                             var postTitle = elementArray[1];
-                            var postBody = elementArray[2].substring(0, elementArray[2].length -1).replace(/&#xA;/g, "\n").replace(/\;/g, "");
+                            var postBody = elementArray[2].substring(0, elementArray[2].length -1).replace(/&#xA;/g, "\n");
 
                             var post = {id: postID, title: postTitle, body: postBody};
                             posts.push(post);
@@ -58,7 +58,7 @@
 
             for (var p in selections[i]) {
                 if(selections[i].hasOwnProperty(p) ) {
-                    csvOutput += selections[i][p].id + ";" +  selections[i][p].category + ";" +  selections[i][p].text.replace(/(?:\r\n|\r|\n)/g, " ") + "\n";
+                    csvOutput += selections[i][p].id + ";\"" +  selections[i][p].category + "\";\"" +  selections[i][p].text.replace(/(?:\r\n|\r|\n)/g, " ") + "\"\n";
                 }
             }
         }
@@ -106,6 +106,7 @@
 
         document.getElementById("currentPostNum").innerHTML = currentPost+1;
         document.getElementById("totalPostNum").innerHTML = posts.length;
+        document.getElementById("currentPostId").innerHTML = currentPostId;
 
     };
 
@@ -152,6 +153,7 @@
 
         document.getElementById("currentPostNum").innerHTML = currentPost+1;
         document.getElementById("totalPostNum").innerHTML = posts.length;
+        document.getElementById("currentPostId").innerHTML = currentPostId;
 
 
     };
@@ -182,7 +184,7 @@
 
             resetForm();
 
-            selectedText.replace(";", "");
+            // selectedText.replace(";", "");
 
             selections[numSelections] = [];
             selections[numSelections].push({ id: currentPostId, category:selection, start: startIdx, end: endIdx, text: selectedText });
@@ -341,6 +343,7 @@
 
             document.getElementById("currentPostNum").innerHTML = currentPost+1;
             document.getElementById("totalPostNum").innerHTML = posts.length;
+            document.getElementById("currentPostId").innerHTML = currentPostId;
 
         } else {
             // Sorry! No Web Storage support..
