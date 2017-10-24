@@ -101,6 +101,11 @@ label {
     padding:10px 20px;
 }
 
+#content a{
+    pointer-events: none;
+    cursor: default;
+}
+
 font[class^="cat"] {
     cursor: pointer;
 }
