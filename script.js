@@ -325,7 +325,7 @@
 
             // console.log("selection was in body");
 
-            if(selection.length > 0) {
+            if(selection.length > 0 && catBox.style.display !== "block") {
 
                 selectedText = selection;
 

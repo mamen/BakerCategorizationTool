@@ -33,6 +33,13 @@ button, option, button, fieldset {
 #classification {
     padding: 10px 20px;
     min-height:12%;
+    /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#ffffff+0,f6f6f6+47,ededed+100;White+3D+%231 */
+    background: #ffffff; /* Old browsers */
+    background: -moz-linear-gradient(bottom, #ffffff 0%, #f6f6f6 47%, #ededed 100%); /* FF3.6-15 */
+    background: -webkit-linear-gradient(bottom, #ffffff 0%,#f6f6f6 47%,#ededed 100%); /* Chrome10-25,Safari5.1-6 */
+    background: linear-gradient(to top, #ffffff 0%,#f6f6f6 47%,#ededed 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffff', endColorstr='#ededed',GradientType=0 ); /* IE6-9 */
+
 }
 
 #currentProgress {
@@ -74,12 +81,17 @@ button {
     text-transform: none;
 }
 
-button#save {
+button#downloadData {
     background: rgb(28, 184, 65);
 }
 
-button#cancel {
-    background: rgb(202, 60, 60);;
+button {
+    background: rgb(66, 136, 240);
+    padding : 10px 15px;
+}
+
+button:not(#downloadData) {
+    width:100px;
 }
 
 input[type=radio] {
