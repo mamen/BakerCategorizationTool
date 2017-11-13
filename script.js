@@ -10,7 +10,6 @@
     var currentPost = 0;
     var currentPostId;
 
-
     var posts = [];
     var pageBuffer = [];
 
@@ -92,7 +91,7 @@
     }
 
     function storePageInBuffer() {
-        console.log("store post " + currentPost);
+        // console.log("store post " + currentPost);
         pageBuffer[currentPost] = document.getElementById("content").innerHTML;
         localStorage.setItem("pageBuffer", JSON.stringify(pageBuffer));
         localStorage.setItem("selections", JSON.stringify(selections));
@@ -125,20 +124,28 @@
         var selectedText = selection.extractContents();
         var span = document.createElement("font");
         span.className = className;
-        span.id = currentPostId;
+        span.id = numSelections;
         span.appendChild(selectedText);
         selection.insertNode(span);
 
 
         span.onclick = function() { deleteCategorizationHandler(span) };
 
-        console.log(document.getElementById("content").innerHTML);
+        //console.log(document.getElementById("content").innerHTML);
     }
 
     function deleteCategorizationHandler(element) {
+
         if (confirm('Click OK if you really want to delete this categorization.')) {
             // delete it from the saved categorizations
-            selections[element.id] = null;
+
+            // console.log("deleted: " + JSON.stringify(selections[currentPost][element.id]));
+
+            selections[currentPost][element.id] = null;
+
+            // console.log(JSON.stringify(selections[currentPost]));
+
+
 
             var parent = element.parentNode;
 
@@ -146,8 +153,6 @@
 
             // remove the empty element
             parent.removeChild(element);
-
-            console.log(document.getElementById("content").innerHTML);
 
         }
     }
@@ -160,14 +165,20 @@
 
         var csvOutput = "data:text/csv;charset=utf-8,";
 
-        for(var i = 0; i < selections.length; i++) {
-            // console.log(JSON.stringify(selections[i]));
+        console.log(JSON.stringify(selections));
 
-            for (var p in selections[i]) {
-                if(selections[i].hasOwnProperty(p) ) {
-                    csvOutput += selections[i][p].id + ";\"" +  selections[i][p].category + "\";\"" +  selections[i][p].text.replace(/(?:\r\n|\r|\n)/g, " ") + "\"\n";
+        for(var i = 0; i < selections.length; i++) {
+          console.log("i: " + i);
+          for(var j = 0; j < selections[i].length; j++) {
+            console.log("j: " + j);
+            for (var p in selections[i][j]) {
+                if(selections[i][j].hasOwnProperty(p) ) {
+                    console.log(selections[i][j]);
+
+                    csvOutput += selections[i][j][p].id + ";\"" +  selections[i][j][p].category + "\";\"" +  selections[i][j][p].text.replace(/(?:\r\n|\r|\n)/g, " ") + "\"\n";
                 }
             }
+          }
         }
 
 
@@ -275,11 +286,23 @@
 
             // selectedText.replace(";", "");
 
-            selections[numSelections] = [];
-            selections[numSelections].push({ id: currentPostId, category:selection, start: startIdx, end: endIdx, text: selectedText });
+            //var selectionTest = {key: 0, postId: currentPostId, category: selection, text: selectedText, start: startIdx, end: endIdx};
+
+            // if no selection has yet been made for the current post
+            if(undefined === selections[currentPost]) {
+              selections[currentPost] = [];
+            }
+
+            if(undefined === selections[currentPost][numSelections]) {
+              selections[currentPost][numSelections] = [];
+            }
+
+            console.log("added: " + selectedText);
+
+            selections[currentPost][numSelections].push({ id: currentPostId, category:selection, start: startIdx, end: endIdx, text: selectedText });
             numSelections++;
 
-            //console.log(JSON.stringify(selections));
+            console.log(JSON.stringify(selections[currentPost]));
 
             hideCategorizationBox();
 
@@ -301,7 +324,7 @@
 
 
             if(null === window.getSelection().anchorNode) {
-                console.log("anchorNode was null");
+                console.log("selection failed: anchorNode was null");
                 return;
             }
 
@@ -373,33 +396,10 @@
                 // console.log(JSON.parse(localStorage.pageBuffer).length);
 
                 for(var i = 0; i < JSON.parse(localStorage.pageBuffer).length; i++) {
-                  if(null !== JSON.parse(localStorage.pageBuffer)[i] && JSON.parse(localStorage.pageBuffer)[i] !== undefined) {
-                      pageBuffer[i] = JSON.parse(localStorage.pageBuffer)[i];
-
-                      // var re = /<font class="[a-z0-9]+" id="[a-z0-9]+">.*<\/font>/g;
-                      // var s = pageBuffer[i];
-                      //
-                      // var m;
-                      //
-                      // var result = "";
-                      //
-                      // do {
-                      //
-                      //     m = re.exec(s);
-                      //     if (m) {
-                      //
-                      //       result = result + m + "\r\n";
-                      //     }
-                      // } while (m);
-                      //
-                      // console.log(result.toString());
-
-                  }
+                    if(null !== JSON.parse(localStorage.pageBuffer)[i] && JSON.parse(localStorage.pageBuffer)[i] !== undefined) {
+                        pageBuffer[i] = JSON.parse(localStorage.pageBuffer)[i];
+                    }
                 }
-
-
-
-
 
                 html = pageBuffer[0];
 
@@ -408,14 +408,20 @@
             }
 
             if(typeof localStorage.selections !== "undefined") {
+
+                // console.log("loaded from local storage:");
+
                 for(var i = 0; i < JSON.parse(localStorage.selections).length; i++) {
-                    selections[i] = JSON.parse(localStorage.selections)[i];
+
+                  if(undefined === selections[i]) {
+                      selections[i] = [];
+                  }
+
+                  for(var j = 0; j < JSON.parse(localStorage.selections)[i].length; j++) {
+                      selections[i][j] = JSON.parse(localStorage.selections)[i][j];
+                  }
                 }
-
-
-                numSelections = JSON.parse(localStorage.selections).length;
-
-                console.log(numSelections);
+                numSelections = JSON.parse(localStorage.selections)[currentPost].length;
             }
 
 
@@ -464,12 +470,9 @@
     document.onkeyup = function resetProgress(e) {
         // this would test for whichever key is 40 and the ctrl key at the same time
         if (e.ctrlKey && e.keyCode == 82) {
-            // call your function to do the thing
-            localStorage.clear();
-            location.reload();
+            if (confirm('Click OK if you really want to delete all categorizations.')) {
+              localStorage.clear();
+              location.reload();
+            }
         }
     }
-
-    // $('body').on("click mousedown mouseup keydown change mouseup click dblclick keydown keyup keypress textInput resize scroll zoom focus blur select change submit reset",function(e){
-    //     console.log(e);
-    // });
