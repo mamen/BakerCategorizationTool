@@ -125,7 +125,7 @@
         var selectedText = selection.extractContents();
         var span = document.createElement("font");
         span.className = className;
-        span.id = numSelections;
+        span.id = currentPostId;
         span.appendChild(selectedText);
         selection.insertNode(span);
 
@@ -373,8 +373,34 @@
                 // console.log(JSON.parse(localStorage.pageBuffer).length);
 
                 for(var i = 0; i < JSON.parse(localStorage.pageBuffer).length; i++) {
-                    pageBuffer[i] = JSON.parse(localStorage.pageBuffer)[i];
+                  if(null !== JSON.parse(localStorage.pageBuffer)[i] && JSON.parse(localStorage.pageBuffer)[i] !== undefined) {
+                      pageBuffer[i] = JSON.parse(localStorage.pageBuffer)[i];
+
+                      // var re = /<font class="[a-z0-9]+" id="[a-z0-9]+">.*<\/font>/g;
+                      // var s = pageBuffer[i];
+                      //
+                      // var m;
+                      //
+                      // var result = "";
+                      //
+                      // do {
+                      //
+                      //     m = re.exec(s);
+                      //     if (m) {
+                      //
+                      //       result = result + m + "\r\n";
+                      //     }
+                      // } while (m);
+                      //
+                      // console.log(result.toString());
+
+                  }
                 }
+
+
+
+
+
                 html = pageBuffer[0];
 
             } else {
@@ -385,6 +411,11 @@
                 for(var i = 0; i < JSON.parse(localStorage.selections).length; i++) {
                     selections[i] = JSON.parse(localStorage.selections)[i];
                 }
+
+
+                numSelections = JSON.parse(localStorage.selections).length;
+
+                console.log(numSelections);
             }
 
 
