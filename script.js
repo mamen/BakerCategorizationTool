@@ -206,6 +206,12 @@
 
         currentPostId = posts[currentPost].id;
 
+        if(undefined === selections[currentPost]) {
+            numSelections = 0;
+        } else {
+            numSelections = selections[currentPost].length;
+        }
+
         var html;
 
         if(typeof pageBuffer[currentPost] !== "undefined") {
@@ -241,6 +247,12 @@
         }
 
         currentPostId = posts[currentPost].id;
+
+        if(undefined === selections[currentPost]) {
+            numSelections = 0;
+        } else {
+            numSelections = selections[currentPost].length;
+        }
 
         var html;
 
@@ -421,11 +433,17 @@
                       selections[i][j] = JSON.parse(localStorage.selections)[i][j];
                   }
                 }
-                numSelections = JSON.parse(localStorage.selections)[currentPost].length;
+                if(undefined === JSON.parse(localStorage.selections)[currentPost]) {
+                    numSelections = 0;
+                } else {
+                    numSelections = JSON.parse(localStorage.selections)[currentPost].length;
+                }
             }
 
 
             currentPostId = posts[currentPost].id;
+
+            currentPost = 0;
 
             // storePageInBuffer();
 
