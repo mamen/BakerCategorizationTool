@@ -169,15 +169,17 @@
 
         for(var i = 0; i < selections.length; i++) {
           console.log("i: " + i);
-          for(var j = 0; j < selections[i].length; j++) {
-            console.log("j: " + j);
-            for (var p in selections[i][j]) {
-                if(selections[i][j].hasOwnProperty(p) ) {
-                    console.log(selections[i][j]);
+          if(undefined !== selections[i]) {
+              for(var j = 0; j < selections[i].length; j++) {
+                  console.log("j: " + j);
+                  for (var p in selections[i][j]) {
+                      if(selections[i][j].hasOwnProperty(p) ) {
+                          console.log(selections[i][j]);
 
-                    csvOutput += selections[i][j][p].id + ";\"" +  selections[i][j][p].category + "\";\"" +  selections[i][j][p].text.replace(/(?:\r\n|\r|\n)/g, " ") + "\"\n";
-                }
-            }
+                          csvOutput += selections[i][j][p].id + ";\"" +  selections[i][j][p].category + "\";\"" +  selections[i][j][p].text.replace(/(?:\r\n|\r|\n)/g, " ") + "\"\n";
+                      }
+                  }
+              }
           }
         }
 
@@ -429,8 +431,10 @@
                       selections[i] = [];
                   }
 
-                  for(var j = 0; j < JSON.parse(localStorage.selections)[i].length; j++) {
-                      selections[i][j] = JSON.parse(localStorage.selections)[i][j];
+                  if(undefined !== JSON.parse(localStorage.selections)[i] && null !== JSON.parse(localStorage.selections)[i]) {
+                      for(var j = 0; j < JSON.parse(localStorage.selections)[i].length; j++) {
+                          selections[i][j] = JSON.parse(localStorage.selections)[i][j];
+                      }
                   }
                 }
                 if(undefined === JSON.parse(localStorage.selections)[currentPost]) {
