@@ -165,18 +165,19 @@
 
         var csvOutput = "data:text/csv;charset=utf-8,";
 
-        console.log(JSON.stringify(selections));
+        //console.log(JSON.stringify(selections));
 
         for(var i = 0; i < selections.length; i++) {
-          console.log("i: " + i);
+          // console.log("i: " + i);
+          // console.log("i: " + selections[i]);
           if(undefined !== selections[i]) {
               for(var j = 0; j < selections[i].length; j++) {
-                  console.log("j: " + j);
+                  // console.log("j: " + j);
+                  // console.log(selections[i][j]);
                   for (var p in selections[i][j]) {
                       if(selections[i][j].hasOwnProperty(p) ) {
-                          console.log(selections[i][j]);
 
-                          csvOutput += selections[i][j][p].id + ";\"" +  selections[i][j][p].category + "\";\"" +  selections[i][j][p].text.replace(/(?:\r\n|\r|\n)/g, " ") + "\"\n";
+                          csvOutput += selections[i][j][p].id + ";\"" +  selections[i][j][p].category + "\";\"" +  selections[i][j][p].text.replace(/(?:\r\n|\r|\n)/g, " ").replace(/#/g, '') + "\"\n";
                       }
                   }
               }
